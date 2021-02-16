@@ -14,8 +14,9 @@ async def text_to_speech(message: Message):
     req_file_name = "gtts.mp3"
     rep = message.reply_to_message
     inp_text = message.input_str if message.input_str else rep.text
+    await message.delete()
     if not inp_text:
-        return await message.edit("Pathetic")
+        return await message.reply("Pathetic")
     def_lang = "en"
     text = inp_text
     try:
@@ -37,6 +38,5 @@ async def text_to_speech(message: Message):
                 duration=a_len
             )
         os.remove(req_file_name)
-        await message.delete()
     except Exception as err:
         await message.edit(err)

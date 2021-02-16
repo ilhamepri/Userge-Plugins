@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from userge import Config, Message, userge
 from userge.utils import take_screen_shot
-
+from fake_useragent import UserAgent
 
 @userge.on_cmd(
     "grs",
@@ -41,14 +41,16 @@ async def google_rs(message: Message):
                 return
             dis_loc = img_file
         base_url = "http://www.google.com"
+        ua = UserAgent()
         if dis_loc:
             search_url = "{}/searchbyimage/upload".format(base_url)
             multipart = {
                 "encoded_image": (dis_loc, open(dis_loc, "rb")),
                 "image_content": "",
             }
+            headers = {'User-Agent': ua.random}
             google_rs_response = requests.post(
-                search_url, files=multipart, allow_redirects=False
+                search_url, headers=headers, files=multipart, allow_redirects=False
             )
             the_location = google_rs_response.headers.get("Location")
             os.remove(dis_loc)
@@ -57,7 +59,7 @@ async def google_rs(message: Message):
             return
         await message.edit("Found Google Result. Lemme pass some Soup;)!")
         headers = {
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:58.0) Gecko/20100101 Firefox/58.0"
+            "User-Agent": ua.random
         }
         response = requests.get(the_location, headers=headers)
         soup = BeautifulSoup(response.text, "html.parser")
